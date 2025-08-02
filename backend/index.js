@@ -13,7 +13,7 @@ server.use(cookieParser());
 server.use(express.static(path.join(__dirname, "build")));
 
 const allowedOrigins = [
-  'http://localhost:5173',
+  'https://apify-manager.vercel.app',
   process.env.CLIENT_URL
 ];
 
