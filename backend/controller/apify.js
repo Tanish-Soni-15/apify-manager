@@ -22,9 +22,9 @@ const validatekey = async (req, res) => {
     const token = jwt.sign({ apiKey: apiKey }, "shhhhh");
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true, // set to true if using HTTPS
-      sameSite: "none", // or "Strict"
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000, 
     });
 
     return res.json({
@@ -121,12 +121,26 @@ const fetchActor = async (req, res) => {
 
 const fetchForm = async (req, res) => {
   const { actorId } = req.body;
+
   try {
-    const response = await fetch(`https://api.apify.com/v2/acts/${actorId}`);
-    const data = await response.json();
-    res.json(data);
+    const result = await fetch(`https://api.apify.com/v2/acts/${actorId}/`);
+    const detailResult= await result.json();
+    const data=detailResult?.data;
+    
+
+    const response = await fetch(`https://api.apify.com/v2/acts/${actorId}/builds/default`);
+const detailData = await response.json();
+const inputSchema = detailData?.data?.actorDefinition?.input;
+
+
+    
+    if (inputSchema) {
+      res.json({inputSchema:inputSchema.properties,data:data}); // Return only the input schema
+    } else {
+      res.status(404).json({ error: "Input schema not found in build metadata." });
+    }
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch actor details" });
+    res.status(500).json({ error: "Failed to fetch actor build details." });
   }
 };
 const runActor = async (req, res) => {
